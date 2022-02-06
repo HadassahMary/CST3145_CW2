@@ -299,7 +299,7 @@
                 cart: []                    //array to store the items added to cart
             },
             created: function(){
-                fetch('http://localhost:3000/collection/lessons').then(
+                fetch('https://cst3145cwhadassah.herokuapp.com/collection/lessons').then(
                     function(response){
                         response.json().then(
                             function(json){
@@ -525,7 +525,7 @@
 
                     const newOrder = {"phone" : this.lessonOrder.phone, "name" : this.lessonOrder.name, "order" : this.cart};
 
-                    fetch("http://localhost:3000/collection/orders", {
+                    fetch("https://cors-anywhere.herokuapp.com/cst3145cwhadassah.herokuapp.com/collection/orders", {
                         method : 'POST',
                         headers: {
                             'Content-Type' : 'application/json',
