@@ -45,7 +45,7 @@ app.post('/collection/:collectionName', (req, res, next) => {
     });
 });
 
-
+const ObjectID = require('mongodb').ObjectID;
 app.put('/collection/:collectionName/:id', (req, res, next) => {
     req.collection.update(
     {_id: new ObjectID(req.params.id)},
