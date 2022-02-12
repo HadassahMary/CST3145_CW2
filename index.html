@@ -547,16 +547,14 @@
                         console.log("Wassup");
                         var prod_id = "61ffa4171a1967d0a7560e6d";
 
-                        fetch("https://cors-anywhere.herokuapp.com/cst3145cwhadassah.herokuapp.com/collection/lessons/"+prod_id, {
+                        fetch("https://cst3145cwhadassah.herokuapp.com/collection/lessons/61ffa4171a1967d0a7560e6d", {
                             method : 'PUT',
                             headers: {
-                                "Content-Type" : "application/json",
-                                "Access-Control-Allow-Origin" : "*", 
-                                "Access-Control-Allow-Credentials" : true
+                                "Content-Type" : "application/json"
                             },
-                            body: JSON.stringify({spaces : 3}),
-                        }).then(response => response.json()).then(responseJSON => {
-                            console.log(JSON.parse(responseJSON));
+                            body: JSON.stringify({"spaces" : "3"}),
+                        }).then(response => response.text()).then(responseJSON => {
+                            console.log(responseJSON);
                         });
                 
                     }
