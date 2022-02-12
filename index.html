@@ -8,7 +8,7 @@
     <title>After School Club</title>
 
     <!-- Vue.js CDN -->
-    <script src="https://unpkg.com/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
     <!-- font awesome (for icons) CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
@@ -304,6 +304,9 @@
                         response.json().then(
                             function(json){
                                 schoolClub.lessons = json;
+                                // fetch('https://cst3145cwhadassah.herokuapp.com/static/' + image).then(
+                                //     lessons.push
+                                // )
                             }
                         )
                     }
@@ -508,14 +511,14 @@
 
                 //function to checkout the lessons
                 CheckoutLessons(){
-                    // if(this.lessonOrder.errorMessage == "" && this.cart.length > 0){
-                    //     alert("Successfully placed order!");
-                    //     document.getElementById('successfulCheckout').innerHTML = "Thank you for purchasing! <br>"
-                    //     addOrder(this.lessonOrder.name, this.lessonOrder.phone, this.cart);
+                     if(this.lessonOrder.errorMessage == "" && this.cart.length > 0){
+                         alert("Successfully placed order!");
+                         document.getElementById('successfulCheckout').innerHTML = "Thank you for purchasing! <br>"
+                         addOrder(this.lessonOrder.name, this.lessonOrder.phone, this.cart);
                     //     this.lessonOrder.name = "";
                     //     this.lessonOrder.phone = "";
                     //     this.cart.splice(0, this.cart.length);
-                    // }
+                     }
                     // else if(this.cart.length == 0){
                     //     alert("No products in cart!")
                     // }
@@ -523,20 +526,42 @@
                     //     alert("Please enter the correct values.");
                     // }
 
-                    const newOrder = {"phone" : this.lessonOrder.phone, "name" : this.lessonOrder.name, "order" : this.cart};
+                    function addOrder(name, phone, cartOrder){
+                        const newOrder = {"phone" : phone, "name" : name, "order" : cartOrder};
 
-                    fetch("https://cors-anywhere.herokuapp.com/cst3145cwhadassah.herokuapp.com/collection/orders", {
-                        method : 'POST',
-                        headers: {
-                            'Content-Type' : 'application/json',
-                        },
-                        body: JSON.stringify(newOrder),
-                    }).then(response => response.json()).then(responseJSON => {
-                        alert(JSON.parse(responseJSON));
-                    }).catch((error) => {
-                        alert(error);
-                    });
-                }                    
+                        fetch("https://cors-anywhere.herokuapp.com/cst3145cwhadassah.herokuapp.com/collection/orders", {
+                            method : 'POST',
+                            headers: {
+                                "Content-Type" : "application/json",
+                                "Access-Control-Allow-Origin" : "*", 
+                                "Access-Control-Allow-Credentials" : true
+                            },
+                            body: JSON.stringify(newOrder),
+                        }).then(response => response.text()).then(responseJSON => {
+                            updateorder();
+                        });
+                    }
+                    
+
+                    function updateorder(){
+                        console.log("Wassup");
+                        var prod_id = "61ffa4171a1967d0a7560e6d";
+
+                        fetch("https://cors-anywhere.herokuapp.com/cst3145cwhadassah.herokuapp.com/collection/lessons/"+prod_id, {
+                            method : 'PUT',
+                            headers: {
+                                "Content-Type" : "application/json",
+                                "Access-Control-Allow-Origin" : "*", 
+                                "Access-Control-Allow-Credentials" : true
+                            },
+                            body: JSON.stringify({spaces : 3}),
+                        }).then(response => response.json()).then(responseJSON => {
+                            console.log(JSON.parse(responseJSON));
+                        });
+                
+                    }
+                }
+
                 
                 // addOrder(name, phone, cartOrders){
                 //     const newOrder = {"phone" : phone, "name" : name, "order" : cartOrders};
