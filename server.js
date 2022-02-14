@@ -8,7 +8,7 @@ app.use(express.json());
 app.set('port', 3000)
 
 app.use(function(req, res, next) {
-    console.log("In comes a request to " + req.url);
+    console.log("In comes a " + req.method + " request to " + req.url);
     next();
 })
 app.use((req, res, next) => {
@@ -36,6 +36,23 @@ app.get('/collection/:collectionName', (req, res, next) => {
         if (e) return next(e)
         res.send(results);
     });
+});
+
+app.get('/collection/:collectionName/:k', (req, res) => {
+    var key_1 = req.params.k;
+    console.log("hello: " + key_1);
+    // const query = { $text: { $search: "Math" } };
+    // const projection = {
+    //     _id: 0,
+    //     title: 1,
+    //   };
+    
+    req.collection.find({ subject: { $regex: key_1, $options: "i" } }).toArray((e, results) => {
+        if (e) return console.log(e)
+        res.send(results);
+    });
+    // const cursor = req.collection.find(query).project(projection);
+    // res.end(cursor);
 });
 
 app.post('/collection/:collectionName', (req, res, next) => {
@@ -71,12 +88,15 @@ app.put('/collection/:collectionName/:id', (req, res, next) => {
     })
 
 
-    app.get('/collection/:collectionName/:keyword', (req, res, next) => {
-        req.collection.find({ subject: {$regex: req.params.keyword, $options: "i"} }).toArray((e, results) => {
-            if (e) return next(e)
-            res.send(results);
-        });
-    });
+    // app.get('/collection/lessons/:k', (req, res) => {
+    //     var key_1 = req.params.k;
+    //     console.log("hello: " + key_1);
+    //     // req.collection.find({ subject: {$regex: req.params.keyword, $options: "i"} }).toArray((e, results) => {
+    //     //     if (e) return next(e)
+    //     //     res.send(results);
+    //     // });
+    //     res.end("hello");
+    // });
 
 
 
