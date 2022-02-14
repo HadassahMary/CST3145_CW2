@@ -71,6 +71,14 @@ app.put('/collection/:collectionName/:id', (req, res, next) => {
     })
 
 
+    app.get('/collection/:collectionName/:keyword', (req, res, next) => {
+        req.collection.find({ subject: {$regex: req.params.keyword, $options: "i"} }).toArray((e, results) => {
+            if (e) return next(e)
+            res.send(results);
+        });
+    });
+
+
 
 
 const port = process.env.PORT || 3000;

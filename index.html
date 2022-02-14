@@ -456,27 +456,35 @@
                 //function to return the searched lessons
                 searchedLessons(lessonArray){
 
-                    //creating an array to store multiple lessons
-                    var returnlessons = []
+                    // //creating an array to store multiple lessons
+                    // var returnlessons = []
 
-                    //if the search value is not empty
+                    // //if the search value is not empty
+                    // if(this.sorters.search != ''){
+                    //     for(let i = 0; i < lessonArray.length; i++){
+
+                    //         //storing the location and subject in lower case to a variable
+                    //         var subjectL = lessonArray[i].subject.toLowerCase();
+                    //         var locationL = lessonArray[i].location.toLowerCase();
+
+                    //         //storing the searched term in lower case
+                    //         var searched = this.sorters.search.toLowerCase();
+
+                    //         //checking if the searched term exists in the variable
+                    //         if(subjectL.includes(searched) || locationL.includes(searched)){
+                    //             returnlessons.push(lessonArray[i]);
+                    //         }
+                    //     }
+                    //     return returnlessons;
+                    // }
                     if(this.sorters.search != ''){
-                        for(let i = 0; i < lessonArray.length; i++){
-
-                            //storing the location and subject in lower case to a variable
-                            var subjectL = lessonArray[i].subject.toLowerCase();
-                            var locationL = lessonArray[i].location.toLowerCase();
-
-                            //storing the searched term in lower case
-                            var searched = this.sorters.search.toLowerCase();
-
-                            //checking if the searched term exists in the variable
-                            if(subjectL.includes(searched) || locationL.includes(searched)){
-                                returnlessons.push(lessonArray[i]);
-                            }
-                        }
-                        return returnlessons;
+                        
                     }
+
+
+
+
+
                 },
 
                 //function to check if the user input has only letters in Name (checkout form)
@@ -538,44 +546,60 @@
                             },
                             body: JSON.stringify(newOrder),
                         }).then(response => response.text()).then(responseJSON => {
-                            updateorder();
+                            updateorder(cartOrder);
                         });
                     }
                     
 
-                    function updateorder(){
-                        console.log("Wassup");
-                        var prod_id = "61ffa4171a1967d0a7560e6d";
+                    function updateorder(cart){
+                        var final_cart = [];
+                        var n = 0;
 
-                        fetch("https://cors-anywhere.herokuapp.com/cst3145cwhadassah.herokuapp.com/collection/lessons/"+ prod_id, {
-                            method : 'PUT',
-                            headers: {
-                                "Content-Type" : "application/json"
-                            },
-                            body: JSON.stringify({"spaces" : 3}),
-                        }).then(response => response.text()).then(responseJSON => {
-                            console.log(responseJSON);
-                        });
+                        for(i = 0; i < cart.length; i++){
+                            const uniqueOrder = {"id" : cart[i]._id, "spaces" : cart[i].spaces};
+
+                            if(final_cart.length == 0){
+                                final_cart.push(uniqueOrder);
+                            }
+                            else{
+
+                            
+                                for(a = 0; a < final_cart.length; a++){
+                                    if(final_cart[a].id == cart[i]._id){
+                                        final_cart[a].spaces = cart[i].spaces; 
+                                        break;
+                                    }
+                                    else{
+                                        final_cart.push(uniqueOrder);
+                                        break;
+                                    }
+
+                                }
+                            }
+                            //final_cart.push(uniqueOrder);
+                        }
+
+                        console.log(final_cart);
+
+
+
+                        
+                        for(i = 0; i < final_cart.length; i++){
+                                fetch("https://cors-anywhere.herokuapp.com/cst3145cwhadassah.herokuapp.com/collection/lessons/"+ final_cart[i].id, {
+                                method : 'PUT',
+                                headers: {
+                                    "Content-Type" : "application/json"
+                                },
+                                body: JSON.stringify({"spaces" : final_cart[i].spaces}),
+                            }).then(response => response.text()).then(responseJSON => {
+                                console.log(responseJSON);
+                            });
+                        }
+
                 
                     }
                 }
 
-                
-                // addOrder(name, phone, cartOrders){
-                //     const newOrder = {"phone" : phone, "name" : name, "order" : cartOrders};
-
-                //     fetch("http://localhost:3000/collection/orders", {
-                //         method : 'POST',
-                //         headers: {
-                //             'Content-Type' : 'application/json',
-                //         },
-                //         body: JSON.stringify(newOrder),
-                //     }).then(response => response.json()).then(responseJSON => {
-                //         alert(JSON.parse(responseJSON));
-                //     }).catch((error) => {
-                //         alert(error);
-                //     });
-                // }
             },
             computed: {
                 //function to return cart length                
