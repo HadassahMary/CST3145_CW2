@@ -40,19 +40,12 @@ app.get('/collection/:collectionName', (req, res, next) => {
 
 app.get('/collection/:collectionName/:k', (req, res) => {
     var key_1 = req.params.k;
-    console.log("hello: " + key_1);
-    // const query = { $text: { $search: "Math" } };
-    // const projection = {
-    //     _id: 0,
-    //     title: 1,
-    //   };
+    console.log("Searched term: " + key_1);
     
-    req.collection.find({ subject: { $regex: key_1, $options: "i" } }).toArray((e, results) => {
+    req.collection.find({$or: [ {subject: { $regex: key_1, $options: "i" }}, {location: { $regex: key_1, $options: "i" }}]}).toArray((e, results) => {
         if (e) return console.log(e)
         res.send(results);
     });
-    // const cursor = req.collection.find(query).project(projection);
-    // res.end(cursor);
 });
 
 app.post('/collection/:collectionName', (req, res, next) => {
