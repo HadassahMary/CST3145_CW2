@@ -18,25 +18,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(function(req, res, next){
-    var filePath = path.join(__dirname, "static", req.url);
-    fs.stat(filePath, function(err, fileInfo){
-        if(err){
-            next();
-            return;
-        }
-        if(fileInfo.isFile()){ //checks if the file exists in the static directory
-            res.sendFile(filePath);
-        }else{
-            
-            next();
-        }
-    });
-});
-app.use(function(req, res){
-    res.status(404);
-    res.send("File not Found! try again...");
-});
+
 let db;
 
 MongoClient.connect('mongodb+srv://Hadassah:Hadassah2001@cluster0.exxms.mongodb.net', (err, client) => {
@@ -100,6 +82,27 @@ app.put('/collection/:collectionName/:id', (req, res, next) => {
     
     })
     })
+
+
+    app.use(function(req, res, next){
+        var filePath = path.join(__dirname, "static", req.url);
+        fs.stat(filePath, function(err, fileInfo){
+            if(err){
+                next();
+                return;
+            }
+            if(fileInfo.isFile()){ //checks if the file exists in the static directory
+                res.sendFile(filePath);
+            }else{
+                
+                next();
+            }
+        });
+    });
+    app.use(function(req, res){
+        res.status(404);
+        res.send("File not Found! try again...");
+    });   
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
