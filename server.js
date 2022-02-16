@@ -1,5 +1,7 @@
 const { request } = require('express');
 const express = require('express');
+var path = require("path");
+var fs = require("fs");
 const MongoClient = require('mongodb').MongoClient;
 
 const app = express();
@@ -16,6 +18,25 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(function(req, res, next){
+    var filePath = path.join(__dirname, "static", req.url);
+    fs.stat(filePath, function(err, fileInfo){
+        if(err){
+            next();
+            return;
+        }
+        if(fileInfo.isFile()){ //checks if the file exists in the static directory
+            res.sendFile(filePath);
+        }else{
+            
+            next();
+        }
+    });
+});
+app.use(function(req, res){
+    res.status(404);
+    res.send("File not Found! try again...");
+});
 let db;
 
 MongoClient.connect('mongodb+srv://Hadassah:Hadassah2001@cluster0.exxms.mongodb.net', (err, client) => {
@@ -79,20 +100,6 @@ app.put('/collection/:collectionName/:id', (req, res, next) => {
     
     })
     })
-
-
-    // app.get('/collection/lessons/:k', (req, res) => {
-    //     var key_1 = req.params.k;
-    //     console.log("hello: " + key_1);
-    //     // req.collection.find({ subject: {$regex: req.params.keyword, $options: "i"} }).toArray((e, results) => {
-    //     //     if (e) return next(e)
-    //     //     res.send(results);
-    //     // });
-    //     res.end("hello");
-    // });
-
-
-
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
