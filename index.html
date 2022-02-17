@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
 
-    <link rel = "shortcut icon" type = "image/x-icon" href = "images/favicon.svg">
+    <link rel = "shortcut icon" type = "image/x-icon" href = "static/favicon.svg">
 
 
 </head>
@@ -64,7 +64,7 @@
             <!-- About Section -->
             <section class="about" id="about">
                 <div class="about_image">
-                    <img src="images/about.png" alt="Girl Studying">
+                    <img src="static/about.png" alt="Girl Studying">
                 </div>
                 <div class="content">
                     <h3>Why Choose Us?</h3>
@@ -175,31 +175,32 @@
                 </div>
 
                 <!-- If there is a searched item, the lessons with the searched word is displayed -->
-                <div class="main" v-else>
-
+                <div class="main" id="searchdisplay" v-else>
+                    <h2>Search results</h2>
+                    <div v-for="lesson in searchedresult"></div>
                     <!-- Displaying the searched lessons -->
-                    <div class="lesson_cards" id="lesson.id" v-for="lesson in searchedLessons(lessons)">
+                    <div class="lesson_cards" id="lessons.id"  v-for="lessons in searchedlessons">
 
                         <!-- Binding an image -->
                         <div class="image">
-                            <img v-bind:src="lesson.image" alt="Lesson Image">
+                            <img v-bind:src="lessons.image" alt="Lesson Image">
                         </div>
 
                         <!-- Adding the details -->
-                        <div class="title"><p>{{lesson.subject}}</p></div>
-                        <div class="location">Location: {{lesson.location}}</div>
-                        <div class="spaces">Spaces Left: {{lesson.spaces}}</div>
-                        <div class="price">{{lesson.price}} £ </div>
+                        <div class="title"><p>{{lessons.subject}}</p></div>
+                        <div class="location">Location: {{lessons.location}}</div>
+                        <div class="spaces">Spaces Left: {{lessons.spaces}}</div>
+                        <div class="price">{{lessons.price}} £ </div>
                         <div class="rating">
-                            <span v-for="n in lesson.rating"><i class="fas fa-star"></i></span>
-                            <span v-for= "n in 5-lesson.rating"><i class="far fa-star"></i></span>
+                            <span v-for="n in lessons.rating"><i class="fas fa-star"></i></span>
+                            <span v-for= "n in 5-lessons.rating"><i class="far fa-star"></i></span>
                         </div>
 
                         <!-- Adding the "Add to Cart" Button -->
-                        <button class="addToCart" v-on:click = "addLessonToCart(lesson)" v-if="canAddToCart(lesson)">Add to Cart</button>
+                        <button class="addToCart" v-on:click = "addLessonToCart(lessons)" v-if="canAddToCart(lessons)">Add to Cart</button>
                         <button class="addToCart" disabled = "disabled" v-else>Add to Cart</button>
-                        <span class="button_information" v-if = "lesson.spaces == 0">All Out!</span>
-                        <span class="button_information" v-else-if = "lesson.spaces > 0 && lesson.spaces < 5">Only {{lesson.spaces}} left!</span>
+                        <span class="button_information" v-if = "lessons.spaces == 0">All Out!</span>
+                        <span class="button_information" v-else-if = "lessons.spaces > 0 && lessons.spaces < 5">Only {{lessons.spaces}} left!</span>
                     </div>
                 </div>
             </section>
@@ -280,6 +281,7 @@
             data: {
                 sitename: "After School Club",
                 lessons: [],           //lessons from lesson.js
+                searchedlessons: [],
                 sorters: {                  //stores information about the selection for sorting and search
                     type: "Sort",
                     order: "ascending",
@@ -298,19 +300,16 @@
                 showLessons: true,          //ShowLessons, if true, the lessons are displayed. If false, the checkout page is displayed
                 cart: []                    //array to store the items added to cart
             },
-            created: function(){
+            created: function(){            //created function fetches the lessons
+
+                //fetching the lessons from server
                 fetch('https://cst3145cwhadassah.herokuapp.com/collection/lessons').then(
                     function(response){
                         response.json().then(
                             function(json){
                                 schoolClub.lessons = json;
-                                // fetch('https://cst3145cwhadassah.herokuapp.com/static/' + image).then(
-                                //     lessons.push
-                                // )
-                            }
-                        )
-                    }
-                )
+                            });
+                    });
             },
             methods:{
                 //function that toggles showLesson from true and false, when user clicks the checkout button
@@ -453,40 +452,6 @@
                     }
                 },
 
-                //function to return the searched lessons
-                searchedLessons(lessonArray){
-
-                    // //creating an array to store multiple lessons
-                    // var returnlessons = []
-
-                    // //if the search value is not empty
-                    // if(this.sorters.search != ''){
-                    //     for(let i = 0; i < lessonArray.length; i++){
-
-                    //         //storing the location and subject in lower case to a variable
-                    //         var subjectL = lessonArray[i].subject.toLowerCase();
-                    //         var locationL = lessonArray[i].location.toLowerCase();
-
-                    //         //storing the searched term in lower case
-                    //         var searched = this.sorters.search.toLowerCase();
-
-                    //         //checking if the searched term exists in the variable
-                    //         if(subjectL.includes(searched) || locationL.includes(searched)){
-                    //             returnlessons.push(lessonArray[i]);
-                    //         }
-                    //     }
-                    //     return returnlessons;
-                    // }
-                    if(this.sorters.search != ''){
-                        
-                    }
-
-
-
-
-
-                },
-
                 //function to check if the user input has only letters in Name (checkout form)
                 isLetter(e){
                     //for every character input
@@ -522,21 +487,54 @@
                      if(this.lessonOrder.errorMessage == "" && this.cart.length > 0){
                          alert("Successfully placed order!");
                          document.getElementById('successfulCheckout').innerHTML = "Thank you for purchasing! <br>"
+                         
+                         //function to add the order to the database
                          addOrder(this.lessonOrder.name, this.lessonOrder.phone, this.cart);
-                    //     this.lessonOrder.name = "";
-                    //     this.lessonOrder.phone = "";
-                    //     this.cart.splice(0, this.cart.length);
+
+                         //function to update the spaces of the lessons
+                         updateorder(this.cart);
+
+                         //clearing the fields
+                         this.lessonOrder.name = "";
+                         this.lessonOrder.phone = "";
+                         this.cart.splice(0, this.cart.length);
                      }
-                    // else if(this.cart.length == 0){
-                    //     alert("No products in cart!")
-                    // }
-                    // else{
-                    //     alert("Please enter the correct values.");
-                    // }
+                    else if(this.cart.length == 0){
+                        alert("No products in cart!")
+                    }
+                    else{
+                        alert("Please enter the correct values.");
+                    }
 
+                    //Add Order function. The following function addes the order to the database
                     function addOrder(name, phone, cartOrder){
-                        const newOrder = {"phone" : phone, "name" : name, "order" : cartOrder};
+                        var final_cart = [];
+                        var n = 0;
 
+                        //making an array with unique orders incase same lessons are ordered
+                        for(i = 0; i < cartOrder.length; i++){
+                            const uniqueOrder = {"id" : cartOrder[i]._id, "spaces" : 1};
+                            if(final_cart.length == 0){
+                                final_cart.push(uniqueOrder);
+                            }
+                            else{
+                                for(a = 0; a < final_cart.length; a++){
+                                    if(final_cart[a].id == cartOrder[i]._id){
+                                        final_cart[a].spaces = final_cart[a].spaces+1; 
+                                        break;
+                                    }
+                                    else{
+                                        final_cart.push(uniqueOrder);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        //final order object that is added into MongoDB
+                        const newOrder = {"phone" : phone, "name" : name, "order" : final_cart};
+
+                        //POST request to add the order to the database.
                         fetch("https://cors-anywhere.herokuapp.com/cst3145cwhadassah.herokuapp.com/collection/orders", {
                             method : 'POST',
                             headers: {
@@ -551,6 +549,7 @@
                     }
                     
 
+                    //The following function updates the spaces of the lessons when an order is placed
                     function updateorder(cart){
                         var final_cart = [];
                         var n = 0;
@@ -562,8 +561,6 @@
                                 final_cart.push(uniqueOrder);
                             }
                             else{
-
-                            
                                 for(a = 0; a < final_cart.length; a++){
                                     if(final_cart[a].id == cart[i]._id){
                                         final_cart[a].spaces = cart[i].spaces; 
@@ -573,17 +570,11 @@
                                         final_cart.push(uniqueOrder);
                                         break;
                                     }
-
                                 }
                             }
-                            //final_cart.push(uniqueOrder);
                         }
-
-                        console.log(final_cart);
-
-
-
                         
+                        //PUT request to update the lesson spaces
                         for(i = 0; i < final_cart.length; i++){
                                 fetch("https://cors-anywhere.herokuapp.com/cst3145cwhadassah.herokuapp.com/collection/lessons/"+ final_cart[i].id, {
                                 method : 'PUT',
@@ -595,8 +586,6 @@
                                 console.log(responseJSON);
                             });
                         }
-
-                
                     }
                 }
 
@@ -605,6 +594,24 @@
                 //function to return cart length                
                 cartItemCount(){
                     return this.cart.length || '';
+                },
+                //function to retrieve the searched lessons
+                searchedresult(){
+                    let searchText=this.sorters.search.toLowerCase();
+
+                    if(searchText != ""){
+
+                        //GET request to retrieve the lessons from the server
+                        fetch('https://cst3145cwhadassah.herokuapp.com/collection/lessons/'+searchText).then(
+                                function (res) {
+                                    res.json().then(
+                                        function (json) {       
+                                           schoolClub.searchedlessons = JSON.parse(JSON.stringify(json));
+                                            console.log(JSON.parse(JSON.stringify(json)));
+                                            return json;
+                                        });
+                                });
+                    }
                 }
             }
         });
