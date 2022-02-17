@@ -45,7 +45,7 @@ app.get('/collection/:collectionName/:k', (req, res) => {
     var key_1 = req.params.k;
     console.log("Searched term: " + key_1);
     
-    req.collection.find({$or: [ {subject: { $regex: key_1, $options: "i" }}, {location: { $regex: key_1, $options: "i" }}]}).toArray((e, results) => {
+    req.collection.find({$or: [ {subject: { $regex: '^'+key_1, $options: "i" }}, {location: { $regex: '^'+key_1, $options: "i" }}]}).toArray((e, results) => {
         if (e) return console.log(e)
         res.send(results);
     });
